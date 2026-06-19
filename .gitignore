@@ -6,6 +6,7 @@ data/
 
 # Optional: local config overrides
 config/
+config*
 
 # Python
 __pycache__/
