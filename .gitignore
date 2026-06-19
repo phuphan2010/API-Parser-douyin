@@ -1,0 +1,22 @@
+# Secrets — never commit these
+.env
+
+# Runtime data (SQLite database)
+data/
+
+# Optional: local config overrides
+config/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,39 @@
+services:
+
+  # ── Auth Proxy ─────────────────────────────────────────────────────────────
+  # The ONLY service exposed to the outside world.
+  # Validates API keys, rate limits, then forwards to douyin-api.
+  auth-proxy:
+    build: ./auth-proxy
+    container_name: api_auth_proxy
+    ports:
+      - "${PROXY_PORT:-8000}:8080"
+    volumes:
+      - ./data:/app/data          # SQLite database — persistent across restarts
+    environment:
+      - ADMIN_SECRET=${ADMIN_SECRET}
+      - TARGET_URL=http://douyin-api:80
+      - RATE_LIMIT_PER_HOUR=${RATE_LIMIT_PER_HOUR:-100}
+      - KEY_EXPIRY_DAYS=${KEY_EXPIRY_DAYS:-30}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - TZ=Asia/Ho_Chi_Minh
+    depends_on:
+      - douyin-api
+    restart: always
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Douyin/TikTok Download API ─────────────────────────────────────────────
+  # Internal only — NOT exposed to the outside. Accessible only via auth-proxy.
+  douyin-api:
+    image: evil0ctal/douyin_tiktok_download_api:latest
+    container_name: douyin_tiktok_api
+    # No "ports:" mapping — internal network only
+    volumes:
+      - ./config:/app/config
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
