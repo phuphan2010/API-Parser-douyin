@@ -21,3 +21,6 @@ build/
 .idea/
 *.swp
 *.swo
+
+# local scripts
+update-cookie.sh
